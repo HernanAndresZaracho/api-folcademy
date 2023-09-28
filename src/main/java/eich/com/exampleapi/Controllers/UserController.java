@@ -1,12 +1,9 @@
 package eich.com.exampleapi.Controllers;
 
-import eich.com.exampleapi.Models.Domain.ContactoAddDTO;
-import eich.com.exampleapi.Models.Domain.ContactoResponseDTO;
-import eich.com.exampleapi.Models.Domain.UserAddDTO;
-import eich.com.exampleapi.Models.Domain.UserReadDTO;
+import eich.com.exampleapi.Models.Dtos.UserAddDTO;
+import eich.com.exampleapi.Models.Dtos.UserReadDTO;
 import eich.com.exampleapi.Services.ContactoService;
 import eich.com.exampleapi.Services.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,13 +67,19 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Integer userId) {
-        boolean deleted = userService.deleteUser(userId);
-
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<UserReadDTO> deleteById(@PathVariable Integer userId) {
+        return ResponseEntity.ok(userService.deleteById(userId));
     }
+
+//    @DeleteMapping("/{userId}")
+//    public ResponseEntity<Void> deleteUser(@PathVariable Integer userId) {
+//        boolean deleted = userService.deleteUser(userId);
+//
+//        if (deleted) {
+//            return ResponseEntity.noContent().build();
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+
 }

@@ -1,7 +1,7 @@
 package eich.com.exampleapi.Models.Mappers;
 
-import eich.com.exampleapi.Models.Domain.ContactoAddDTO;
-import eich.com.exampleapi.Models.Domain.ContactoResponseDTO;
+import eich.com.exampleapi.Models.Dtos.ContactoAddDTO;
+import eich.com.exampleapi.Models.Dtos.ContactoResponseDTO;
 import eich.com.exampleapi.Models.Entities.ContactoEntity;
 import org.springframework.stereotype.Component;
 

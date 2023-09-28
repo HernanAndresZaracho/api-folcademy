@@ -1,7 +1,7 @@
 package eich.com.exampleapi.Models.Mappers;
 
-import eich.com.exampleapi.Models.Domain.UserAddDTO;
-import eich.com.exampleapi.Models.Domain.UserReadDTO;
+import eich.com.exampleapi.Models.Dtos.UserAddDTO;
+import eich.com.exampleapi.Models.Dtos.UserReadDTO;
 import eich.com.exampleapi.Models.Entities.UserEntity;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package eich.com.exampleapi.Models.Domain;
+package eich.com.exampleapi.Exceptions.Dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ContactoAddDTO {
-    String nombre;
-    Integer celular;
+public class ErrorMessageDTO {
+    private String message;
 }

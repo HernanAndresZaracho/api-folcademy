@@ -1,7 +1,9 @@
 package eich.com.exampleapi.Services;
 
-import eich.com.exampleapi.Models.Domain.UserAddDTO;
-import eich.com.exampleapi.Models.Domain.UserReadDTO;
+import eich.com.exampleapi.Exceptions.ExceptionKinds.UserAlreadyExistsException;
+import eich.com.exampleapi.Exceptions.ExceptionKinds.UserNotFoundException;
+import eich.com.exampleapi.Models.Dtos.UserAddDTO;
+import eich.com.exampleapi.Models.Dtos.UserReadDTO;
 import eich.com.exampleapi.Models.Entities.UserEntity;
 import eich.com.exampleapi.Models.Mappers.UserMapper;
 import eich.com.exampleapi.Models.Repositories.UserRepository;
@@ -29,14 +31,20 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserReadDTO add(UserAddDTO userAddDTO){
-        return userMapper.userEntityToUserReadDTO(
-                userRepository.save(
-                userMapper.userAddDTOToUserEntity(userAddDTO)));
+    public UserReadDTO add(UserAddDTO userAddDTO) {
+        if (userRepository.existsByEmail(userAddDTO.getEmail())) {
+            throw new UserAlreadyExistsException("El usuario con el mismo correo electrónico ya existe.");
+        }
+
+        UserEntity userEntity = userMapper.userAddDTOToUserEntity(userAddDTO);
+        UserEntity savedUserEntity = userRepository.save(userEntity);
+
+        return userMapper.userEntityToUserReadDTO(savedUserEntity);
     }
 
     public UserReadDTO findUserById(Integer userId) {
-        Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
+        Optional<UserEntity> userEntityOptional = Optional.ofNullable(userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("No se encontro un usuario con ese identificador")));
 
         if (userEntityOptional.isPresent()) {
             UserEntity userEntity = userEntityOptional.get();
@@ -91,15 +99,27 @@ public class UserService {
         }
     }
 
-    public boolean deleteUser(Integer userId) {
-        Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
+    public UserReadDTO deleteById(Integer userId) {
+        try {
+            UserEntity user = userRepository.findById(userId)
+                    .orElseThrow(()-> new UserNotFoundException("No se encontro un usuario con ese identificador"));
 
-        if (userEntityOptional.isPresent()) {
-            userRepository.deleteById(userId);
-            return true;
-        } else {
-            return false;
+            userRepository.delete(user);
+
+            return userMapper.userEntityToUserReadDTO(user);
+        }catch (Exception e){
+            throw new RuntimeException(e.getMessage());
         }
     }
 
+//    public boolean deleteUser(Integer userId) {
+//        Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
+//
+//        if (userEntityOptional.isPresent()) {
+//            userRepository.deleteById(userId);
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
 }

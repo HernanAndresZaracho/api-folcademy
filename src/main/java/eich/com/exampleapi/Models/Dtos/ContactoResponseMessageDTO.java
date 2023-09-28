@@ -1,4 +1,4 @@
-package eich.com.exampleapi.Models.Domain;
+package eich.com.exampleapi.Models.Dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserReadDTO {
+
+public class ContactoResponseMessageDTO {
     Integer id;
-    String name;
-    String surname;
-    String email;
+    String mensaje;
 }

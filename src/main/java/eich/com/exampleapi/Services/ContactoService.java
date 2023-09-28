@@ -1,8 +1,10 @@
 package eich.com.exampleapi.Services;
 
-import eich.com.exampleapi.Models.Domain.ContactoAddDTO;
-import eich.com.exampleapi.Models.Domain.ContactoResponseDTO;
-import eich.com.exampleapi.Models.Domain.ContactoResponseMessageDTO;
+import eich.com.exampleapi.Exceptions.ExceptionKinds.ContactoExistenteException;
+import eich.com.exampleapi.Exceptions.ExceptionKinds.ContactoInexistenteException;
+import eich.com.exampleapi.Models.Dtos.ContactoAddDTO;
+import eich.com.exampleapi.Models.Dtos.ContactoResponseDTO;
+import eich.com.exampleapi.Models.Dtos.ContactoResponseMessageDTO;
 import eich.com.exampleapi.Models.Entities.ContactoEntity;
 import eich.com.exampleapi.Models.Mappers.ContactoMapper;
 import eich.com.exampleapi.Models.Repositories.ContactoRepository;
@@ -32,6 +34,13 @@ public class ContactoService {
     }
 
     public ContactoResponseMessageDTO addContacto(ContactoAddDTO contactoAddDTO) {
+        boolean nombreExists = contactoRepository.existsByNombre(contactoAddDTO.getNombre());
+        boolean celularExists = contactoRepository.existsByCelular(contactoAddDTO.getCelular());
+
+        if (nombreExists || celularExists) {
+            throw new ContactoExistenteException("El contacto con nombre '" + contactoAddDTO.getNombre() + "' o número de celular '" + contactoAddDTO.getCelular() + "' ya existe.");
+        }
+
         ContactoEntity contactoEntity = contactoMapper.contactoAddDTOToContactoEntity(contactoAddDTO);
         ContactoEntity savedContacto = contactoRepository.save(contactoEntity);
 
@@ -49,7 +58,7 @@ public class ContactoService {
             ContactoEntity contactoEntity = contactoEntityOptional.get();
             return contactoMapper.contactoEntityToContactoReadDTO(contactoEntity);
         } else {
-            return null;
+            throw new ContactoInexistenteException("El contacto con el ID " + contactoId + " no se encontró.");
         }
     }
 
@@ -58,6 +67,14 @@ public class ContactoService {
 
         if (contactoEntityOptional.isPresent()) {
             ContactoEntity contactoEntity = contactoEntityOptional.get();
+
+            if (contactoRepository.existsByNombre(updatedContactoData.getNombre())) {
+                throw new ContactoExistenteException("El nombre ya existe en la base de datos.");
+            }
+
+            if (contactoRepository.existsByCelular(updatedContactoData.getCelular())) {
+                throw new ContactoExistenteException("El celular ya existe en la base de datos.");
+            }
 
             contactoEntity.setNombre(updatedContactoData.getNombre());
             contactoEntity.setCelular(updatedContactoData.getCelular());
@@ -81,11 +98,16 @@ public class ContactoService {
                 Object fieldValue = entry.getValue();
 
                 if ("nombre".equals(fieldName)) {
+                    if (contactoRepository.existsByNombre((String) fieldValue)) {
+                        throw new ContactoExistenteException("El nombre ya existe en la base de datos.");
+                    }
                     contactoEntity.setNombre((String) fieldValue);
                 } else if ("celular".equals(fieldName)) {
+                    if (contactoRepository.existsByCelular((Integer) fieldValue)) {
+                        throw new ContactoExistenteException("El celular ya existe en la base de datos.");
+                    }
                     contactoEntity.setCelular((Integer) fieldValue);
                 }
-                // Agrega aquí otros campos si los tienes
             }
 
             contactoRepository.save(contactoEntity);
@@ -104,6 +126,13 @@ public class ContactoService {
             return true;
         } else {
             return false;
+        }
+    }
+    public void verifyContactoExists(Integer contactoId) {
+        Optional<ContactoEntity> contactoEntityOptional = contactoRepository.findById(contactoId);
+
+        if (!contactoEntityOptional.isPresent()) {
+            throw new ContactoInexistenteException("El contacto con el ID " + contactoId + " no se encontró.");
         }
     }
 }

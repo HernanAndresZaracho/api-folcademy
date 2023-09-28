@@ -1,9 +1,8 @@
 package eich.com.exampleapi.Controllers;
 
-import eich.com.exampleapi.Models.Domain.ContactoAddDTO;
-import eich.com.exampleapi.Models.Domain.ContactoResponseDTO;
-import eich.com.exampleapi.Models.Domain.ContactoResponseMessageDTO;
-import eich.com.exampleapi.Models.Domain.UserAddDTO;
+import eich.com.exampleapi.Models.Dtos.ContactoAddDTO;
+import eich.com.exampleapi.Models.Dtos.ContactoResponseDTO;
+import eich.com.exampleapi.Models.Dtos.ContactoResponseMessageDTO;
 import eich.com.exampleapi.Services.ContactoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -87,6 +86,7 @@ public class ContactoController {
         if (deleted) {
             return ResponseEntity.noContent().build();
         } else {
+            contactoService.verifyContactoExists(contactoId);
             return ResponseEntity.notFound().build();
         }
     }
