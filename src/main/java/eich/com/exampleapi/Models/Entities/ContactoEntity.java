@@ -23,4 +23,9 @@ public class ContactoEntity {
     @Column(name = "celular", columnDefinition = "INT")
     private Integer celular;
 
+    @Column(name = "username", columnDefinition = "VARCHAR(150)")
+    private String username;
+
+    @Column(name = "contrasena", columnDefinition = "VARCHAR(100)")
+    private String password;
 }

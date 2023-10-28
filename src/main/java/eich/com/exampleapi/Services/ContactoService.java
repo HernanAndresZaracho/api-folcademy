@@ -36,9 +36,12 @@ public class ContactoService {
     public ContactoResponseMessageDTO addContacto(ContactoAddDTO contactoAddDTO) {
         boolean nombreExists = contactoRepository.existsByNombre(contactoAddDTO.getNombre());
         boolean celularExists = contactoRepository.existsByCelular(contactoAddDTO.getCelular());
+        boolean usernameExists = contactoRepository.findByUsername(contactoAddDTO.getUsername());
 
-        if (nombreExists || celularExists) {
-            throw new ContactoExistenteException("El contacto con nombre '" + contactoAddDTO.getNombre() + "' o número de celular '" + contactoAddDTO.getCelular() + "' ya existe.");
+        if (nombreExists || celularExists || usernameExists) {
+            throw new ContactoExistenteException("El contacto con nombre '" + contactoAddDTO.getNombre() +
+                    "', número de celular '" + contactoAddDTO.getCelular() +
+                    "' o nombre de usuario '" + contactoAddDTO.getUsername() + "' ya existe.");
         }
 
         ContactoEntity contactoEntity = contactoMapper.contactoAddDTOToContactoEntity(contactoAddDTO);
@@ -76,8 +79,13 @@ public class ContactoService {
                 throw new ContactoExistenteException("El celular ya existe en la base de datos.");
             }
 
+            if (contactoRepository.findByUsername(updatedContactoData.getUsername())) {
+                throw new ContactoExistenteException("El nombre de usuario ya existe en la base de datos.");
+            }
+
             contactoEntity.setNombre(updatedContactoData.getNombre());
             contactoEntity.setCelular(updatedContactoData.getCelular());
+            contactoEntity.setUsername(updatedContactoData.getUsername());
 
             contactoRepository.save(contactoEntity);
 
@@ -86,6 +94,7 @@ public class ContactoService {
             return null;
         }
     }
+
 
     public ContactoResponseDTO partialUpdateContacto(Integer contactoId, Map<String, Object> updatedContactoData) {
         Optional<ContactoEntity> contactoEntityOptional = contactoRepository.findById(contactoId);
@@ -98,15 +107,23 @@ public class ContactoService {
                 Object fieldValue = entry.getValue();
 
                 if ("nombre".equals(fieldName)) {
-                    if (contactoRepository.existsByNombre((String) fieldValue)) {
-                        throw new ContactoExistenteException("El nombre ya existe en la base de datos.");
+                    String nuevoNombre = (String) fieldValue;
+                    if (contactoRepository.existsByNombre(nuevoNombre)) {
+                        throw new ContactoExistenteException("El nombre '" + nuevoNombre + "' ya existe en la base de datos.");
                     }
-                    contactoEntity.setNombre((String) fieldValue);
+                    contactoEntity.setNombre(nuevoNombre);
                 } else if ("celular".equals(fieldName)) {
-                    if (contactoRepository.existsByCelular((Integer) fieldValue)) {
-                        throw new ContactoExistenteException("El celular ya existe en la base de datos.");
+                    Integer nuevoCelular = (Integer) fieldValue;
+                    if (contactoRepository.existsByCelular(nuevoCelular)) {
+                        throw new ContactoExistenteException("El celular '" + nuevoCelular + "' ya existe en la base de datos.");
                     }
-                    contactoEntity.setCelular((Integer) fieldValue);
+                    contactoEntity.setCelular(nuevoCelular);
+                } else if ("username".equals(fieldName)) {
+                    String nuevoUsername = (String) fieldValue;
+                    if (contactoRepository.findByUsername(nuevoUsername)) {
+                        throw new ContactoExistenteException("El username '" + nuevoUsername + "' ya existe en la base de datos.");
+                    }
+                    contactoEntity.setUsername(nuevoUsername);
                 }
             }
 
